@@ -14,4 +14,6 @@ public class FormField : BaseTable<Guid>
     public bool IsRequired { get; set; }
     public string? OptionsJson { get; set; } // for Select/Radio - JSON array of option strings
     public int Order { get; set; }
+    public virtual ICollection<FormFieldValidation> Validations { get; set; } = new List<FormFieldValidation>();
+
 }

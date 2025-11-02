@@ -1,0 +1,46 @@
+﻿@page
+@model DynamicFormWebApp.Pages.Forms.ListModel
+@{
+}
+<h2>Forms</h2>
+
+<p>
+    <a asp-page="/Forms/CreateForm" class="btn btn-primary">➕ Create New Form</a>
+</p>
+
+@if (Model.Forms == null || !Model.Forms.Any())
+{
+    <p>No forms have been created yet.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Fields Count</th>
+                <th>Created At</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var f in Model.Forms)
+            {
+                <tr>
+                    <td>@f.Title</td>
+                    <td>@f.Description</td>
+                    <td>@f.Fields.Count</td>
+                    <td>@f.CreatedAt.ToLocalTime().ToString("yyyy/MM/dd HH:mm")</td>
+                    <td>
+                        <a asp-page="/Forms/FillForm" asp-route-id="@f.Id" class="btn btn-sm btn-success">📝 Fill</a>
+                        <a asp-page="/Forms/Details" asp-route-id="@f.Id" class="btn btn-sm btn-info">🔍 Details</a>
+                        <a asp-page="/Forms/Edit" asp-route-id="@f.Id" class="btn btn-sm btn-warning">✏️ Edit</a>
+                        <a asp-page="/Forms/Submissions" asp-route-id="@f.Id" class="btn btn-sm btn-secondary">📋 Submissions</a>
+
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

@@ -1,4 +1,5 @@
 ﻿using DynamicFormWebApp.Domain.Data;
+using DynamicFormWebApp.Domain.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,7 +21,7 @@ public static class DynamicFormWebAppDomainRegistration
 
         #endregion
 
-
+        services.AddScoped<IFormService, FormService>();
 
         return services;
     }

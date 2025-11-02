@@ -11,6 +11,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<BaseForm> Forms => Set<BaseForm>();
     public DbSet<FormField> FormFields => Set<FormField>();
     public DbSet<FormSubmission> FormSubmissions => Set<FormSubmission>();
+    public DbSet<FormFieldValidation> FormFieldValidations => Set<FormFieldValidation>();
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

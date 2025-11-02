@@ -3,10 +3,19 @@
 public enum FieldType
 {
     Text,
-    Multiline,
     Number,
+    TextArea,
+    Email,
+    Password,
     Date,
-    Checkbox,
+    Time,
+    DateTime,
+    Select,
     Radio,
-    Select
+    Checkbox,
+    MultiSelect,
+    File,
+    Url,
+    Phone,
+
 }

@@ -1,0 +1,152 @@
+﻿@page
+@model DynamicFormWebApp.Pages.Forms.CreateFormModel
+@{
+    ViewData["Title"] = "Create New Form";
+}
+
+<h2>Create New Form</h2>
+
+<form method="post" class="mt-3">
+    <div class="mb-3">
+        <label asp-for="BaseFormItem.Title" class="form-label">Form Title</label>
+        <input asp-for="BaseFormItem.Title" class="form-control" />
+        <span asp-validation-for="BaseFormItem.Title" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="BaseFormItem.Description" class="form-label">Description</label>
+        <textarea asp-for="BaseFormItem.Description" class="form-control"></textarea>
+    </div>
+
+    <hr />
+
+    <h5>Fields</h5>
+    <div id="fields-container"></div>
+
+    <button type="button" id="add-field" class="btn btn-primary mt-3">+ Add Field</button>
+
+    <!-- Ensure the hidden has the correct name/id -->
+    <input type="hidden" asp-for="FieldsJson" id="FieldsJson" />
+
+    <div class="mt-4">
+        <button type="submit" class="btn btn-success">Save Form</button>
+        <a asp-page="/Forms/List" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        const form = document.querySelector('form');
+        const fieldsContainer = document.getElementById('fields-container');
+        const fieldsHidden = document.getElementById('FieldsJson'); // safest
+
+        document.getElementById('add-field').addEventListener('click', () => {
+            const field = document.createElement('div');
+            field.classList.add('border','p-3','mb-3','rounded');
+            field.innerHTML = `
+                <div class="row mb-2">
+                    <div class="col-md-3">
+                        <input class="form-control field-label" placeholder="Label" />
+                    </div>
+                    <div class="col-md-3">
+                        <input class="form-control field-name" placeholder="Name" />
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-select field-type">
+                            <option value="Text">Text</option>
+                            <option value="Number">Number</option>
+                            <option value="TextArea">TextArea</option>
+                            <option value="Email">Email</option>
+                            <option value="Password">Password</option>
+                            <option value="Date">Date</option>
+                            <option value="Time">Time</option>
+                            <option value="DateTime">Date & Time</option>
+                            <option value="Select">Select</option>
+                            <option value="Radio">Radio Buttons</option>
+                            <option value="Checkbox">Checkbox</option>
+                            <option value="MultiSelect">Multi Select</option>
+                            <option value="File">File Upload</option>
+                            <option value="Url">URL</option>
+                            <option value="Phone">Phone Number</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-center">
+                        <input class="form-check-input field-required me-1" type="checkbox" /> Required
+                    </div>
+                    <div class="col-md-2 text-end">
+                        <button type="button" class="btn btn-outline-danger btn-sm remove-field">Remove</button>
+                    </div>
+                </div>
+
+                <div class="field-options mt-2">
+                    <input class="form-control field-options-text" placeholder="Comma-separated options (for Select type)" />
+                </div>
+
+                <div class="validations-container border rounded p-2 mt-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <strong>Validations</strong>
+                        <button type="button" class="btn btn-sm btn-outline-primary add-validation">+ Add Validation</button>
+                    </div>
+                    <div class="validation-items"></div>
+                </div>
+            `;
+            field.querySelector('.remove-field').addEventListener('click', () => field.remove());
+            field.querySelector('.add-validation').addEventListener('click', () => addValidationRow(field));
+            fieldsContainer.appendChild(field);
+        });
+
+        function addValidationRow(field) {
+            const validationsContainer = field.querySelector('.validation-items');
+            const row = document.createElement('div');
+            row.classList.add('d-flex','gap-2','align-items-center','mb-2');
+            row.innerHTML = `
+                <select class="form-select form-select-sm val-type" style="width:140px;">
+                    <option value="MinLength">MinLength</option>
+                    <option value="MaxLength">MaxLength</option>
+                    <option value="MinValue">MinValue</option>
+                    <option value="MaxValue">MaxValue</option>
+                    <option value="Regex">Regex</option>
+                </select>
+                <input class="form-control form-control-sm val-value" style="width:120px;" placeholder="Value" />
+                <input class="form-control form-control-sm val-message flex-grow-1" placeholder="Error Message" />
+                <button type="button" class="btn btn-sm btn-outline-danger remove-validation">✖</button>
+            `;
+            row.querySelector('.remove-validation').addEventListener('click', () => row.remove());
+            validationsContainer.appendChild(row);
+        }
+
+        function serializeFields() {
+            const allFields = [];
+            // safer selector (no child selector ambiguity)
+            fieldsContainer.querySelectorAll(':scope > div').forEach((f, i) => {
+                const label = f.querySelector('.field-label')?.value ?? '';
+                const name = f.querySelector('.field-name')?.value ?? '';
+                const type = f.querySelector('.field-type')?.value ?? 'Text';
+                const isRequired = !!f.querySelector('.field-required')?.checked;
+                const options = (f.querySelector('.field-options-text')?.value ?? '')
+                    .split(',')
+                    .map(x => x.trim())
+                    .filter(Boolean);
+
+                const validations = [];
+                f.querySelectorAll('.validation-items > div').forEach(v => {
+                    validations.push({
+                        ruleType: v.querySelector('.val-type')?.value ?? '',
+                        ruleValue: v.querySelector('.val-value')?.value ?? '',
+                        errorMessage: v.querySelector('.val-message')?.value ?? ''
+                    });
+                });
+
+                allFields.push({ label, name, type, isRequired, options, validations, order: i + 1 });
+            });
+            fieldsHidden.value = JSON.stringify(allFields);
+        }
+
+        // Make sure value is set right before submit
+        form.addEventListener('submit', () => {
+            serializeFields();
+        });
+    </script>
+}

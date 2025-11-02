@@ -1,0 +1,60 @@
+﻿@page
+@model DynamicFormWebApp.Pages.Forms.SubmissionsModel
+@{
+}
+@if (Model.FormDef == null)
+{
+    <p>Form not found.</p>
+}
+else
+{
+    <h2>Submissions for: @Model.FormDef.Title</h2>
+
+    <p>
+        <a asp-page="/Forms/List" class="btn btn-secondary">⬅ Back to Forms</a>
+    </p>
+
+    @if (Model.Submissions == null || !Model.Submissions.Any())
+    {
+        <p>No submissions yet.</p>
+    }
+    else
+    {
+        var fields = Model.FormDef.Fields.OrderBy(f => f.Order).ToList();
+
+        <table class="table table-bordered table-sm">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    @foreach (var field in fields)
+                    {
+                        <th>@field.Label</th>
+                    }
+                    <th>Submitted At</th>
+                    <th>By</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    int index = 1;
+                    foreach (var submission in Model.Submissions)
+                    {
+                        var values = Model.ParseValues(submission.ValuesJson);
+                        <tr>
+                            <td>@index</td>
+                            @foreach (var field in fields)
+                            {
+                                var key = field.Name;
+                                values.TryGetValue(key, out var val);
+                                <td>@val</td>
+                            }
+                            <td>@submission.SubmittedAt.ToLocalTime().ToString("yyyy/MM/dd HH:mm")</td>
+                            <td>@submission.SubmittedBy</td>
+                        </tr>
+                        index++;
+                    }
+                }
+            </tbody>
+        </table>
+    }
+}
